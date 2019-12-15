@@ -8,21 +8,22 @@ const char* term[]    = {"xterm", "-title terminal", 0};
 const char* scrot[]   = {"scr",            0};
 
 static struct key keys[] = {
-    {MOD,      XK_q,   win_kill,   {0}},
-    {MOD,      XK_c,   win_center, {0}},
-    {MOD,      XK_f,   win_fs,     {0}},
-    {Mod1Mask, XK_Tab, win_next,   {0}},
+    {MOD|ShiftMask, XK_q,   win_kill,   {0}},
+    {MOD,           XK_c,   win_center, {0}},
+    {MOD,           XK_f,   win_fs,     {0}},
+    {MOD,           XK_j,   win_next    {0}},
+    {MOD,           XK_k,   win_prev    {0}},
+    //{Mod1Mask,     XK_Tab, win_next,   {0}},
 
-    {MOD, XK_d,      run, {.com = menu}},
-    {MOD, XK_w,      run, {.com = colors}},
-    {MOD, XK_p,      run, {.com = scrot}},
-    {MOD, XK_Return, run, {.com = term}},
+    {MOD,           XK_p,      run, {.com = menu}},
+    {MOD|ShiftMask, XK_p,      run, {.com = scrot}},
+    {MOD,           XK_Return, run, {.com = term}},
 
-    {0,   XF86XK_AudioLowerVolume,  run, {.com = voldown}},
-    {0,   XF86XK_AudioRaiseVolume,  run, {.com = volup}},
-    {0,   XF86XK_AudioMute,         run, {.com = volmute}},
-    {0,   XF86XK_MonBrightnessUp,   run, {.com = briup}},
-    {0,   XF86XK_MonBrightnessDown, run, {.com = bridown}},
+    //{0,   XF86XK_AudioLowerVolume,  run, {.com = voldown}},
+    //{0,   XF86XK_AudioRaiseVolume,  run, {.com = volup}},
+    //{0,   XF86XK_AudioMute,         run, {.com = volmute}},
+    //{0,   XF86XK_MonBrightnessUp,   run, {.com = briup}},
+    //{0,   XF86XK_MonBrightnessDown, run, {.com = bridown}},
 
     {MOD,           XK_1, ws_go,     {.i = 1}},
     {MOD|ShiftMask, XK_1, win_to_ws, {.i = 1}},
