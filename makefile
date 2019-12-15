@@ -1,24 +1,30 @@
-CFLAGS+= -std=c99 -Wall -Wextra -pedantic
-LDADD+= -lX11
-LDFLAGS=
-PREFIX?= /usr
-BINDIR?= $(PREFIX)/bin
+NAME		 = sowm
 
-CC ?= gcc
+WARNINGS	 = -Wall -Wextra -pedantic -Wmissing-prototypes \
+			   -Wold-style-definition -Werror
 
-all: config.h sowm
+CC 			?= gcc
+CFLAGS		 = -std=c99 -O3 $(WARNINGS)
+LDFLAGS	 	 = -lX11
+PREFIX		?= /usr/local
+BINDIR		?= $(PREFIX)/bin
+
+SRC			 = $(NAME).c
+OBJ			 = $(SRC:.c=.o)
+
+all: config.h $(NAME)
 
 config.h:
 	cp config.def.h config.h
 
-sowm: sowm.o
-	$(CC) $(LDFLAGS) -O3 -o $@ $+ $(LDADD)
+$(NAME): $(OBJ)
+	$(CC) $(LDFLAGS) -O3 -o $@ $<
 
 install: all
 	install -Dm 755 sowm $(DESTDIR)$(BINDIR)/sowm
 
 clean:
-	rm -f sowm *.o
+	rm -f $(NAME) $(OBJ)
 
 test:
 	for patch in patches/*.patch; do patch --dry-run -p1 < "$$patch"; done
