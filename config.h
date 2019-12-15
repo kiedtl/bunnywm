@@ -11,8 +11,8 @@ static struct key keys[] = {
     {MOD|ShiftMask, XK_q,   win_kill,   {0}},
     {MOD,           XK_c,   win_center, {0}},
     {MOD,           XK_f,   win_fs,     {0}},
-    {MOD,           XK_j,   win_next    {0}},
-    {MOD,           XK_k,   win_prev    {0}},
+    {MOD,           XK_j,   win_next,   {0}},
+    {MOD,           XK_k,   win_prev,   {0}},
     //{Mod1Mask,     XK_Tab, win_next,   {0}},
 
     {MOD,           XK_p,      run, {.com = menu}},
