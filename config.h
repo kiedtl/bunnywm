@@ -3,9 +3,11 @@
 
 #define MOD Mod4Mask
 
-const char* menu[]    = {"ndmen",      0};
-const char* term[]    = {"xterm", "-title terminal", 0};
-const char* scrot[]   = {"scr",            0};
+const char *quit[]    = { "pkill", "sowm",               0 };
+const char *lock[]    = { "slock",                       0 };
+const char *menu[]    = { "ndmen",                       0 };
+const char *term[]    = { "xterm", "-title", "terminal", 0 };
+const char *scrot[]   = { "scr",                         0 };
 
 static struct key keys[] = {
     {MOD|ShiftMask, XK_q,   win_kill,   {0}},
