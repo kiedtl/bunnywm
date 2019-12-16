@@ -67,15 +67,13 @@ xerror ( void )
 void
 win_focus ( client *c )
 {
-    if (c == NULL || !c->w) {
-		//xcb_set_input_focus(con, XCB_NONE, XCB_INPUT_FOCUS_POINTER_ROOT, XCB_CURRENT_TIME);
-		return;
-	}
+    if (c == NULL) return;
 
-    //xcb_set_input_focus(con, XCB_INPUT_FOCUS_PARENT, c->w, XCB_CURRENT_TIME);
-	//xcb_flush(con);
+	cur = c;
+    xcb_set_input_focus(con, XCB_INPUT_FOCUS_PARENT, cur->w, XCB_CURRENT_TIME);
+	xcb_flush(con);
 
-    XSetInputFocus(d, c->w, RevertToParent, CurrentTime);
+    //XSetInputFocus(d, cur->w, RevertToParent, CurrentTime);
 }
 
 void
@@ -232,28 +230,28 @@ win_to_ws ( const Arg arg )
 void
 win_prev ( void )
 {
-	if (cur->prev->w == screen->root || !cur) return;
+	if (!cur) return;
 
 	// raise window
-	//usize maskvalue[] = { XCB_STACK_MODE_ABOVE };
-	//xcb_configure_window(con, cur->prev->w, XCB_CONFIG_WINDOW_STACK_MODE, maskvalue);
-	//xcb_flush(con);
+	usize maskvalue[] = { XCB_STACK_MODE_ABOVE };
+	xcb_configure_window(con, cur->prev->w, XCB_CONFIG_WINDOW_STACK_MODE, maskvalue);
+	xcb_flush(con);
 
-    XRaiseWindow(d, cur->prev->w);
+    //XRaiseWindow(d, cur->prev->w);
     win_focus(cur->prev);
 }
 
 void
 win_next ( void )
 {
-	if (cur->next->w == screen->root || !cur) return;
+	if (!cur) return;
 
     // raise window	
-	//usize value[] = { XCB_STACK_MODE_ABOVE };
+    usize value[] = { XCB_STACK_MODE_ABOVE };
 	xcb_configure_window(con, cur->next->w, XCB_CONFIG_WINDOW_STACK_MODE, value);
-	//xcb_flush(con);
+	xcb_flush(con);
 
-    XRaiseWindow(d, cur->next->w);
+    //XRaiseWindow(d, cur->next->w);
     win_focus(cur->next);
 }
 
@@ -316,5 +314,5 @@ run ( const Arg arg )
     if (d) close(ConnectionNumber(d));
 
     setsid();
-    execvp((char*)arg.com[0], (char**)arg.com);
+    execvp((char*) arg.com[0], (char**) arg.com);
 }
