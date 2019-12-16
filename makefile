@@ -1,7 +1,7 @@
 NAME		 = sowm
 
 WARNINGS	 = -Wall -Wextra -pedantic -Wmissing-prototypes \
-			   -Wold-style-definition -Werror
+			   -Wold-style-definition -Werror -Wno-incompatible-pointer-types
 
 CC 			?= gcc
 CFLAGS		 = -std=c99 -O3 $(WARNINGS)
