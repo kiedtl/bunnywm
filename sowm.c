@@ -65,6 +65,12 @@ xerror ( void )
 }
 
 void
+sowm_exit( void )
+{
+		exit(EXIT_SUCCESS);
+}
+
+void
 win_focus ( client *c )
 {
     if (c == NULL) return;

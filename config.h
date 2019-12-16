@@ -3,13 +3,13 @@
 
 #define MOD Mod4Mask
 
-const char *quit[]    = { "pkill", "sowm",               0 };
 const char *lock[]    = { "slock",                       0 };
 const char *menu[]    = { "ndmen",                       0 };
 const char *term[]    = { "xterm", "-title", "terminal", 0 };
 const char *scrot[]   = { "scr",                         0 };
 
 static struct key keys[] = {
+    {MOD|ShiftMask, XK_e,   sowm_exit,  {0}},
     {MOD|ShiftMask, XK_q,   win_kill,   {0}},
     {MOD,           XK_c,   win_center, {0}},
     {MOD,           XK_f,   win_fs,     {0}},
@@ -17,7 +17,6 @@ static struct key keys[] = {
     {MOD,           XK_k,   win_prev,   {0}},
     //{Mod1Mask,     XK_Tab, win_next,   {0}},
 
-	{MOD|ShiftMask, XK_e,      run, {.com = quit}},
 	{MOD|ShiftMask, XK_S,      run, {.com = lock}},
     {MOD,           XK_p,      run, {.com = menu}},
     {MOD|ShiftMask, XK_p,      run, {.com = scrot}},
