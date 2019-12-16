@@ -2,6 +2,9 @@
 // kiedtl's sowm
 //
 
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
+#include <X11/Xlib-xcb.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
@@ -27,15 +30,22 @@ main ( void )
     signal(SIGCHLD, SIG_IGN);
     XSetErrorHandler(xerror);
 
-    int s       = DefaultScreen(d);
-    Window root = RootWindow(d, s);
-    sw          = XDisplayWidth(d, s);
-    sh          = XDisplayHeight(d, s);
+	// setup xcb stuff (WIP)
+	con = XGetXCBConnection(d);
+	setup = xcb_get_setup(con);
+	it = xcb_setup_roots_iterator(setup);
+	screen = it.data;
 
-    XSelectInput(d,  root, SubstructureRedirectMask);
+    //int s       = DefaultScreen(d);
+    Window root = screen->root; //RootWindow(d, s);
+
+    sw          = screen->width_in_pixels; //XDisplayWidth(d, s);
+	sh          = screen->height_in_pixels; // XDisplayHeight(d, s);
+
+	XSelectInput(d,root,SubstructureRedirectMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
 
-    for (usize i=0; i < sizeof(keys)/sizeof(*keys); ++i)
+    for (usize i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
         XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
                  root, True, GrabModeAsync, GrabModeAsync);
 
@@ -126,7 +136,11 @@ win_add ( Window w )
     client *c;
 
     if (!(c = (client *) calloc(1, sizeof(client))))
+	{
+		EPRINT("sowm: error: unable to allocate memory for new window: ");
+		perror("calloc()");
         exit(1);
+	}
 
     c->w = w;
 

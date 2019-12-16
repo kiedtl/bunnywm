@@ -1,13 +1,14 @@
 NAME		 = sowm
+PREFIX		?= /usr/local
+BINDIR		?= $(PREFIX)/bin
 
 WARNINGS	 = -Wall -Wextra -pedantic -Wmissing-prototypes \
 			   -Wold-style-definition -Werror -Wno-incompatible-pointer-types
 
 CC 			?= gcc
-CFLAGS		 = -std=c99 -O3 $(WARNINGS) -Isub/ccommon/
-LDFLAGS	 	 = -lX11
-PREFIX		?= /usr/local
-BINDIR		?= $(PREFIX)/bin
+INC			 = -Isub/ccommon/ -I/usr/include/X11/ -I/usr/include/ 
+CFLAGS		 = -std=c99 $(WARNINGS) $(INC)
+LDFLAGS	 	 = -lX11 -lxcb -lX11-xcb
 
 SRC			 = $(NAME).c
 OBJ			 = $(SRC:.c=.o)

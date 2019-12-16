@@ -1,6 +1,8 @@
 #ifndef SOWM_H
 #define SOWM_H
 
+#include "types.h"
+#include <xcb/xcb.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
@@ -54,11 +56,17 @@ static void ws_go(const Arg arg);
 static void win_focus ( client *c );
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
-static int          ws = 1, sw, sh, wx, wy;
-static unsigned int ww, wh;
+static isize        ws = 1, sw, sh, wx, wy;
+static usize        ww, wh;
 
 static Display      *d;
 static XButtonEvent mouse;
+
+// new xcb stuff (WIP)
+static xcb_connection_t       *con;
+static const xcb_setup_t      *setup;
+static xcb_screen_iterator_t  it;
+static xcb_screen_t           *screen;
 
 static void (*events[LASTEvent])(XEvent *e) = {
     [ButtonPress]      = button_press,
