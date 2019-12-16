@@ -1,6 +1,7 @@
-// sowm - An itsy bitsy floating window manager.
+//
+// kiedtl's sowm
+//
 
-#include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
@@ -8,92 +9,70 @@
 #include <signal.h>
 #include <unistd.h>
 
-typedef union {
-    const char** com;
-    const int i;
-    const Window w;
-} Arg;
-
-struct key {
-    unsigned int mod;
-    KeySym keysym;
-    void (*function)(const Arg arg);
-    const Arg arg;
-};
-
-typedef struct client {
-    struct client *next, *prev;
-    int f, wx, wy;
-    unsigned int ww, wh;
-    Window w;
-} client;
-
-static void button_press(XEvent *e);
-static void button_release();
-static void configure_request(XEvent *e);
-static void key_press(XEvent *e);
-static void map_request(XEvent *e);
-static void notify_destroy(XEvent *e);
-static void notify_enter(XEvent *e);
-static void notify_motion(XEvent *e);
-static void run(const Arg arg);
-static void win_add(Window w);
-static void win_center();
-static void win_del(Window w);
-static void win_fs();
-static void win_kill();
-static void win_prev();
-static void win_next();
-static void win_to_ws(const Arg arg);
-static void ws_go(const Arg arg);
-static int  xerror() { return 0;}
-
-static client       *list = {0}, *ws_list[10] = {0}, *cur;
-static int          ws = 1, sw, sh, wx, wy;
-static unsigned int ww, wh;
-
-static Display      *d;
-static XButtonEvent mouse;
-
-static void (*events[LASTEvent])(XEvent *e) = {
-    [ButtonPress]      = button_press,
-    [ButtonRelease]    = button_release,
-    [ConfigureRequest] = configure_request,
-    [KeyPress]         = key_press,
-    [MapRequest]       = map_request,
-    [DestroyNotify]    = notify_destroy,
-    [EnterNotify]      = notify_enter,
-    [MotionNotify]     = notify_motion
-};
-
+#include "sowm.h"
 #include "config.h"
 
-#define win        (client *t=0, *c=list; c && t!=list->prev; t=c, c=c->next)
-#define ws_save(W) ws_list[W] = list
-#define ws_sel(W)  list = ws_list[ws = W]
+int
+main ( void )
+{
+    XEvent ev;
 
-#define win_size(W, gx, gy, gw, gh) \
-    XGetGeometry(d, W, &(Window){0}, gx, gy, gw, gh, \
-                 &(unsigned int){0}, &(unsigned int){0})
+    if (!(d = XOpenDisplay(0)))
+	{
+			EPRINT("sowm: error: unable to open X display.\n");
+			exit(1);
+	}
 
-void win_focus(client *c) {
+    signal(SIGCHLD, SIG_IGN);
+    XSetErrorHandler(xerror);
+
+    int s       = DefaultScreen(d);
+    Window root = RootWindow(d, s);
+    sw          = XDisplayWidth(d, s);
+    sh          = XDisplayHeight(d, s);
+
+    XSelectInput(d,  root, SubstructureRedirectMask);
+    XDefineCursor(d, root, XCreateFontCursor(d, 68));
+
+    for (unsigned int i=0; i < sizeof(keys)/sizeof(*keys); ++i)
+        XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
+                 root, True, GrabModeAsync, GrabModeAsync);
+
+    for (int i = 1; i < 4; i += 2)
+        XGrabButton(d, i, MOD, root, True,
+            ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
+            GrabModeAsync, GrabModeAsync, 0, 0);
+
+    while (1 && !XNextEvent(d, &ev))
+        if (events[ev.type]) events[ev.type](&ev);
+}
+
+void
+win_focus ( client *c )
+{
     cur = c;
     XSetInputFocus(d, cur->w, RevertToParent, CurrentTime);
 }
 
-void notify_destroy(XEvent *e) {
+void
+notify_destroy ( XEvent *e )
+{
     win_del(e->xdestroywindow.window);
 
     if (list) win_focus(list->prev);
 }
 
-void notify_enter(XEvent *e) {
+void
+notify_enter ( XEvent *e )
+{
     while(XCheckTypedEvent(d, EnterNotify, e));
 
     for win if (c->w == e->xcrossing.window) win_focus(c);
 }
 
-void notify_motion(XEvent *e) {
+void
+notify_motion ( XEvent *e )
+{
     if (!mouse.subwindow || cur->f) return;
 
     while(XCheckTypedEvent(d, MotionNotify, e));
@@ -108,15 +87,19 @@ void notify_motion(XEvent *e) {
         wh + (mouse.button == 3 ? yd : 0));
 }
 
-void key_press(XEvent *e) {
+void
+key_press ( XEvent *e )
+{
     KeySym keysym = XkbKeycodeToKeysym(d, e->xkey.keycode, 0, 0);
 
-    for (unsigned int i=0; i < sizeof(keys)/sizeof(*keys); ++i)
+    for (unsigned int i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
         if (keys[i].mod == e->xkey.state && keys[i].keysym == keysym)
             keys[i].function(keys[i].arg);
 }
 
-void button_press(XEvent *e) {
+void
+button_press ( XEvent *e )
+{
     if (!e->xbutton.subwindow) return;
 
     win_size(e->xbutton.subwindow, &wx, &wy, &ww, &wh);
@@ -124,11 +107,15 @@ void button_press(XEvent *e) {
     mouse = e->xbutton;
 }
 
-void button_release() {
+void
+button_release ( void )
+{
     mouse.subwindow = 0;
 }
 
-void win_add(Window w) {
+void
+win_add ( Window w )
+{
     client *c;
 
     if (!(c = (client *) calloc(1, sizeof(client))))
@@ -150,7 +137,9 @@ void win_add(Window w) {
     ws_save(ws);
 }
 
-void win_del(Window w) {
+void
+win_del ( Window w )
+{
     client *x = 0;
 
     for win if (c->w == w) x = c;
@@ -165,11 +154,15 @@ void win_del(Window w) {
     ws_save(ws);
 }
 
-void win_kill() {
+void
+win_kill ( void )
+{
     if (cur) XKillClient(d, cur->w);
 }
 
-void win_center() {
+void
+win_center ( void )
+{
     if (!cur) return;
 
     win_size(cur->w, &(int){0}, &(int){0}, &ww, &wh);
@@ -177,18 +170,21 @@ void win_center() {
     XMoveWindow(d, cur->w, (sw - ww) / 2, (sh - wh) / 2);
 }
 
-void win_fs() {
+void
+win_fs ( void )
+{
     if (!cur) return;
 
     if ((cur->f = cur->f ? 0 : 1)) {
         win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
         XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
-
     } else
         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
 }
 
-void win_to_ws(const Arg arg) {
+void
+win_to_ws ( const Arg arg )
+{
     int tmp = ws;
 
     if (arg.i == tmp) return;
@@ -205,21 +201,27 @@ void win_to_ws(const Arg arg) {
     if (list) win_focus(list);
 }
 
-void win_prev() {
+void
+win_prev ( void )
+{
     if (!cur) return;
 
     XRaiseWindow(d, cur->prev->w);
     win_focus(cur->prev);
 }
 
-void win_next() {
+void
+win_next ( void )
+{
     if (!cur) return;
 
     XRaiseWindow(d, cur->next->w);
     win_focus(cur->next);
 }
 
-void ws_go(const Arg arg) {
+void
+ws_go ( const Arg arg )
+{
     int tmp = ws;
 
     if (arg.i == ws) return;
@@ -238,7 +240,9 @@ void ws_go(const Arg arg) {
     if (list) win_focus(list); else cur = 0;
 }
 
-void configure_request(XEvent *e) {
+void
+configure_request ( XEvent *e )
+{
     XConfigureRequestEvent *ev = &e->xconfigurerequest;
 
     XConfigureWindow(d, ev->window, ev->value_mask, &(XWindowChanges) {
@@ -251,7 +255,9 @@ void configure_request(XEvent *e) {
     });
 }
 
-void map_request(XEvent *e) {
+void
+map_request ( XEvent *e )
+{
     Window w = e->xmaprequest.window;
 
     XSelectInput(d, w, StructureNotifyMask|EnterWindowMask);
@@ -265,39 +271,12 @@ void map_request(XEvent *e) {
     win_focus(list->prev);
 }
 
-void run(const Arg arg) {
+void
+run ( const Arg arg )
+{
     if (fork()) return;
     if (d) close(ConnectionNumber(d));
 
     setsid();
     execvp((char*)arg.com[0], (char**)arg.com);
-}
-
-int main(void) {
-    XEvent ev;
-
-    if (!(d = XOpenDisplay(0))) exit(1);
-
-    signal(SIGCHLD, SIG_IGN);
-    XSetErrorHandler(xerror);
-
-    int s       = DefaultScreen(d);
-    Window root = RootWindow(d, s);
-    sw          = XDisplayWidth(d, s);
-    sh          = XDisplayHeight(d, s);
-
-    XSelectInput(d,  root, SubstructureRedirectMask);
-    XDefineCursor(d, root, XCreateFontCursor(d, 68));
-
-    for (unsigned int i=0; i < sizeof(keys)/sizeof(*keys); ++i)
-        XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
-                 root, True, GrabModeAsync, GrabModeAsync);
-
-    for (int i=1; i<4; i+=2)
-        XGrabButton(d, i, MOD, root, True,
-            ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
-            GrabModeAsync, GrabModeAsync, 0, 0);
-
-    while (1 && !XNextEvent(d, &ev))
-        if (events[ev.type]) events[ev.type](&ev);
 }
