@@ -4,7 +4,7 @@ WARNINGS	 = -Wall -Wextra -pedantic -Wmissing-prototypes \
 			   -Wold-style-definition -Werror -Wno-incompatible-pointer-types
 
 CC 			?= gcc
-CFLAGS		 = -std=c99 -O3 $(WARNINGS)
+CFLAGS		 = -std=c99 -O3 $(WARNINGS) -Isub/ccommon/
 LDFLAGS	 	 = -lX11
 PREFIX		?= /usr/local
 BINDIR		?= $(PREFIX)/bin
