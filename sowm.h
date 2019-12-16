@@ -1,3 +1,6 @@
+#ifndef SOWM_H
+#define SOWM_H
+
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
@@ -75,3 +78,5 @@ static void (*events[LASTEvent])(XEvent *e) = {
 #define win_size(W, gx, gy, gw, gh) \
     XGetGeometry(d, W, &(Window){0}, gx, gy, gw, gh, \
                  &(unsigned int){0}, &(unsigned int){0})
+
+#endif
