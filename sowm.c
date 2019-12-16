@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include "types.h"
 #include "sowm.h"
 #include "config.h"
 
@@ -34,17 +35,23 @@ main ( void )
     XSelectInput(d,  root, SubstructureRedirectMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
 
-    for (unsigned int i=0; i < sizeof(keys)/sizeof(*keys); ++i)
+    for (usize i=0; i < sizeof(keys)/sizeof(*keys); ++i)
         XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
                  root, True, GrabModeAsync, GrabModeAsync);
 
-    for (int i = 1; i < 4; i += 2)
+    for (usize i = 1; i < 4; i += 2)
         XGrabButton(d, i, MOD, root, True,
             ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
             GrabModeAsync, GrabModeAsync, 0, 0);
 
     while (1 && !XNextEvent(d, &ev))
         if (events[ev.type]) events[ev.type](&ev);
+}
+
+static int 
+xerror ( void )
+{
+		return 0;
 }
 
 void
@@ -92,7 +99,7 @@ key_press ( XEvent *e )
 {
     KeySym keysym = XkbKeycodeToKeysym(d, e->xkey.keycode, 0, 0);
 
-    for (unsigned int i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
+    for (usize i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
         if (keys[i].mod == e->xkey.state && keys[i].keysym == keysym)
             keys[i].function(keys[i].arg);
 }

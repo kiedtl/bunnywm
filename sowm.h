@@ -1,4 +1,4 @@
-#include <xcb/xcb.h>
+#include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#define EPRINT		fprintf(stderr, __VA_ARGS__);
+#define EPRINT(...)		fprintf(stderr, __VA_ARGS__);
 
 typedef union {
     const char** com;
@@ -29,8 +29,9 @@ typedef struct client {
     Window w;
 } client;
 
+static int xerror ( void );
 static void button_press(XEvent *e);
-static void button_release();
+static void button_release( void );
 static void configure_request(XEvent *e);
 static void key_press(XEvent *e);
 static void map_request(XEvent *e);
@@ -39,15 +40,15 @@ static void notify_enter(XEvent *e);
 static void notify_motion(XEvent *e);
 static void run(const Arg arg);
 static void win_add(Window w);
-static void win_center();
+static void win_center( void );
 static void win_del(Window w);
-static void win_fs();
-static void win_kill();
-static void win_prev();
-static void win_next();
+static void win_fs( void );
+static void win_kill( void );
+static void win_prev( void );
+static void win_next( void );
 static void win_to_ws(const Arg arg);
 static void ws_go(const Arg arg);
-static int  xerror() { return 0;}
+static void win_focus ( client *c );
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
 static int          ws = 1, sw, sh, wx, wy;
