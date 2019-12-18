@@ -15,13 +15,6 @@
 #define MOVE_UP			0x7
 #define MOVE_RIGHT		0x8
 
-// ----- borders -----
-const int borderpx    = 2;
-
-// color format: 0xRRGGBB
-const int bdrnorm_col = 0x9A4F31;
-const int bdrsel_col  = 0xC3D3D2;
-
 // ----- command -----
 const char *lock[]    = { "slock",                       0 };
 const char *menu[]    = { "ndmen",                       0 };

@@ -33,7 +33,6 @@ typedef struct client {
 } client;
 
 static int xerror ( void );
-static void draw_border ( client *c );
 static void button_press(XEvent *e);
 static void button_release( void );
 static void configure_request(XEvent *e);

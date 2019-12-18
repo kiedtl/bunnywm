@@ -73,23 +73,6 @@ sowm_exit( void )
 }
 
 void
-draw_border ( client *c )
-{
-    if (c == NULL) return;
-	
-    // set border width
-	usize values[] = { borderpx };
-	//xcb_configure_window(con, c->w, XCB_CONFIG_WINDOW_BORDER_WIDTH, values);
-
-	if (cur->w == c->w)
-		values[0] = bdrsel_col;
-	else
-		values[0] = bdrnorm_col;
-
-	xcb_change_window_attributes(con, c->w, XCB_CW_BORDER_PIXEL, values);
-}
-	
-void
 win_focus ( client *c )
 {
     if (c == NULL) return;
@@ -186,7 +169,6 @@ win_add ( Window w )
     }
 
     ws_save(ws);
-	draw_border(c);
 }
 
 void
