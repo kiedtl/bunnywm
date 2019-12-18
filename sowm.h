@@ -4,6 +4,7 @@
 #include "types.h"
 #include <xcb/xcb.h>
 #include <stdio.h>
+#include <xcb/xcb_ewmh.h>
 #include <X11/Xlib.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
@@ -11,6 +12,8 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+
+#define MAX_WS	32
 
 typedef union {
     const char** com;
@@ -32,43 +35,45 @@ typedef struct client {
     Window w;
 } client;
 
-static int xerror(void);
-static void sowm_exit(void);
-static void win_focus ( client *c );
-static void notify_destroy(XEvent *e);
-static void notify_enter(XEvent *e);
-static void notify_motion(XEvent *e);
-static void key_press(XEvent *e);
-static void button_press(XEvent *e);
-static void button_release(void);
-static void win_add(Window w);
-static void win_del(Window w);
-static void win_kill(void);
-static void win_center(void);
-static void win_fs(void);
-static void win_to_ws(const Arg arg);
-static void win_prev( void );
-static void win_next( void );
-static void win_modify ( const Arg arg );
-static void ws_go(const Arg arg);
-static void configure_request(XEvent *e);
-static void map_request(XEvent *e);
-static void run(const Arg arg);
+int xerror(void);
+void sowm_exit(void);
+void win_focus ( client *c );
+void notify_destroy(XEvent *e);
+void notify_enter(XEvent *e);
+void notify_motion(XEvent *e);
+void key_press(XEvent *e);
+void button_press(XEvent *e);
+void button_release(void);
+void win_add(Window w);
+void win_del(Window w);
+void win_kill(void);
+void win_center(void);
+void win_fs(void);
+void win_to_ws(const Arg arg);
+void win_prev( void );
+void win_next( void );
+void win_modify ( const Arg arg );
+void ws_go(const Arg arg);
+void configure_request(XEvent *e);
+void map_request(XEvent *e);
+void run(const Arg arg);
 
-static client       *list = {0}, *ws_list[10] = {0}, *cur;
-static isize        ws = 1, sw, sh, wx, wy;
-static usize        ww, wh;
+extern xcb_ewmh_connection_t *junk;
 
-static Display      *d;
-static XButtonEvent mouse;
+client       *list = {0}, *ws_list[10] = {0}, *cur;
+isize        ws = 1, sw, sh, wx, wy;
+usize        ww, wh;
+
+Display      *d;
+XButtonEvent mouse;
 
 // new xcb stuff (WIP)
-static xcb_connection_t       *con;
-static const xcb_setup_t      *setup;
-static xcb_screen_iterator_t  it;
-static xcb_screen_t           *screen;
+xcb_connection_t       *con;
+const xcb_setup_t      *setup;
+xcb_screen_iterator_t  it;
+xcb_screen_t           *screen;
 
-static void (*events[LASTEvent])(XEvent *e) = {
+void (*events[LASTEvent])(XEvent *e) = {
     [ButtonPress]      = button_press,
     [ButtonRelease]    = button_release,
     [ConfigureRequest] = configure_request,
