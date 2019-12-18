@@ -176,6 +176,9 @@ win_fs(void)
 void
 win_to_ws ( const Arg arg )
 {
+    if (MAX_WS < arg.i)
+			return;
+
     int tmp = ws;
 
     if (arg.i == tmp) return;
@@ -294,6 +297,9 @@ win_modify ( const Arg arg )
 void
 ws_go ( const Arg arg )
 {
+    if (MAX_WS < arg.i)
+			return; // get the hell outta here
+
     int tmp = ws;
 
     if (arg.i == ws) return;

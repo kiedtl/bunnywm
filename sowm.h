@@ -12,6 +12,8 @@
 #include <signal.h>
 #include <unistd.h>
 
+#define MAX_WS	32
+
 typedef union {
     const char** com;
     const int i;
