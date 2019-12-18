@@ -186,7 +186,7 @@ win_to_ws ( const Arg arg )
 
     ws_sel(tmp);
     win_del(cur->w);
-    XUnmapWindow(d, cur->w);
+    xcb_unmap_window(con, cur->w); //XUnmapWindow(d, cur->w);
     ws_save(tmp);
 
     if (list) win_focus(list);
@@ -301,15 +301,15 @@ ws_go ( const Arg arg )
     ws_save(ws);
     ws_sel(arg.i);
 
-    for win XMapWindow(d, c->w);
+    for win xcb_map_window(con, c->w); //XMapWindow(d, c->w);
 
     ws_sel(tmp);
 
-    for win XUnmapWindow(d, c->w);
+    for win xcb_unmap_window(con, c->w); //XUnmapWindow(d, c->w);
 
     ws_sel(arg.i);
 
-    if (list) win_focus(list)
+    if (list) win_focus(list);
 	else cur = 0;
 }
 
@@ -340,7 +340,7 @@ map_request ( XEvent *e )
 
     if ((wx + wy) == 0) win_center();
 
-    XMapWindow(d, w);
+    xcb_map_window(con, w); //XMapWindow(d, w);
     win_focus(list->prev);
 }
 
