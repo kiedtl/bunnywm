@@ -18,62 +18,20 @@
 #include "sowm.h"
 #include "config.h"
 
-int
-main ( void )
-{
-    XEvent ev;
-
-    if (!(d = XOpenDisplay(0)))
-	{
-			EPRINT("sowm: error: unable to open X display.\n");
-			exit(1);
-	}
-
-    signal(SIGCHLD, SIG_IGN);
-    XSetErrorHandler(xerror);
-
-	// setup xcb stuff (WIP)
-	con = XGetXCBConnection(d);
-	setup = xcb_get_setup(con);
-	it = xcb_setup_roots_iterator(setup);
-	screen = it.data;
-
-    //int s       = DefaultScreen(d);
-    Window root = screen->root; //RootWindow(d, s);
-
-    sw          = screen->width_in_pixels; //XDisplayWidth(d, s);
-	sh          = screen->height_in_pixels; // XDisplayHeight(d, s);
-
-	XSelectInput(d,root,SubstructureRedirectMask);
-    XDefineCursor(d, root, XCreateFontCursor(d, 68));
-
-    for (usize i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
-        XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
-                 root, True, GrabModeAsync, GrabModeAsync);
-
-    for (usize i = 1; i < 4; i += 2)
-        XGrabButton(d, i, MOD, root, True,
-            ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
-            GrabModeAsync, GrabModeAsync, 0, 0);
-
-    while (1 && !XNextEvent(d, &ev))
-        if (events[ev.type]) events[ev.type](&ev);
-}
-
 static int 
-xerror ( void )
+xerror(void)
 {
 		return 0;
 }
 
 void
-sowm_exit( void )
+sowm_exit(void)
 {
 		exit(EXIT_SUCCESS);
 }
 
 void
-win_focus ( client *c )
+win_focus(client *c)
 {
     if (c == NULL) return;
 
@@ -85,7 +43,7 @@ win_focus ( client *c )
 }
 
 void
-notify_destroy ( XEvent *e )
+notify_destroy(XEvent *e)
 {
     win_del(e->xdestroywindow.window);
 
@@ -93,7 +51,7 @@ notify_destroy ( XEvent *e )
 }
 
 void
-notify_enter ( XEvent *e )
+notify_enter(XEvent *e)
 {
     while(XCheckTypedEvent(d, EnterNotify, e));
 
@@ -101,7 +59,7 @@ notify_enter ( XEvent *e )
 }
 
 void
-notify_motion ( XEvent *e )
+notify_motion(XEvent *e)
 {
     if (!mouse.subwindow || cur->f) return;
 
@@ -118,7 +76,7 @@ notify_motion ( XEvent *e )
 }
 
 void
-key_press ( XEvent *e )
+key_press(XEvent *e)
 {
     KeySym keysym = XkbKeycodeToKeysym(d, e->xkey.keycode, 0, 0);
 
@@ -128,7 +86,7 @@ key_press ( XEvent *e )
 }
 
 void
-button_press ( XEvent *e )
+button_press(XEvent *e)
 {
     if (!e->xbutton.subwindow) return;
 
@@ -138,18 +96,17 @@ button_press ( XEvent *e )
 }
 
 void
-button_release ( void )
+button_release(void)
 {
     mouse.subwindow = 0;
 }
 
 void
-win_add ( Window w )
+win_add(Window w)
 {
     client *c;
 
-    if (!(c = (client *) calloc(1, sizeof(client))))
-	{
+    if (!(c = (client *) calloc(1, sizeof(client)))) {
 		EPRINT("sowm: error: unable to allocate memory for new window: ");
 		perror("calloc()");
         exit(1);
@@ -162,7 +119,6 @@ win_add ( Window w )
         c->prev          = list->prev;
         list->prev       = c;
         c->next          = list;
-
     } else {
         list = c;
         list->prev = list->next = list;
@@ -172,7 +128,7 @@ win_add ( Window w )
 }
 
 void
-win_del ( Window w )
+win_del(Window w)
 {
     client *x = 0;
 
@@ -189,13 +145,13 @@ win_del ( Window w )
 }
 
 void
-win_kill ( void )
+win_kill(void)
 {
     if (cur) XKillClient(d, cur->w);
 }
 
 void
-win_center ( void )
+win_center(void)
 {
     if (!cur) return;
 
@@ -205,15 +161,16 @@ win_center ( void )
 }
 
 void
-win_fs ( void )
+win_fs(void)
 {
     if (!cur) return;
 
     if ((cur->f = cur->f ? 0 : 1)) {
         win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
         XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
-    } else
+    } else {
         XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
+	}
 }
 
 void
@@ -352,7 +309,8 @@ ws_go ( const Arg arg )
 
     ws_sel(arg.i);
 
-    if (list) win_focus(list); else cur = 0;
+    if (list) win_focus(list)
+	else cur = 0;
 }
 
 void
@@ -380,7 +338,7 @@ map_request ( XEvent *e )
     win_add(w);
     cur = list->prev;
 
-    if (wx + wy == 0) win_center();
+    if ((wx + wy) == 0) win_center();
 
     XMapWindow(d, w);
     win_focus(list->prev);
@@ -394,4 +352,45 @@ run ( const Arg arg )
 
     setsid();
     execvp((char*) arg.com[0], (char**) arg.com);
+}
+
+int
+main ( void )
+{
+    XEvent ev;
+
+    if (!(d = XOpenDisplay(0))) {
+			EPRINT("sowm: error: unable to open X display.\n");
+			exit(1);
+	}
+
+    signal(SIGCHLD, SIG_IGN);
+    XSetErrorHandler(xerror);
+
+	// setup xcb stuff (WIP)
+	con = XGetXCBConnection(d);
+	setup = xcb_get_setup(con);
+	it = xcb_setup_roots_iterator(setup);
+	screen = it.data;
+
+    //int s       = DefaultScreen(d);
+    Window root = screen->root; //RootWindow(d, s);
+
+    sw          = screen->width_in_pixels; //XDisplayWidth(d, s);
+	sh          = screen->height_in_pixels; // XDisplayHeight(d, s);
+
+	XSelectInput(d,root,SubstructureRedirectMask);
+    XDefineCursor(d, root, XCreateFontCursor(d, 68));
+
+    for (usize i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
+        XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
+                 root, True, GrabModeAsync, GrabModeAsync);
+
+    for (usize i = 1; i < 4; i += 2)
+        XGrabButton(d, i, MOD, root, True,
+            ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
+            GrabModeAsync, GrabModeAsync, 0, 0);
+
+    while (1 && !XNextEvent(d, &ev))
+        if (events[ev.type]) events[ev.type](&ev);
 }
