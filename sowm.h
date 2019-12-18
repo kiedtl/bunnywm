@@ -27,12 +27,13 @@ typedef struct key {
 
 typedef struct client {
     struct client *next, *prev;
-    int f, wx, wy;
-    unsigned int ww, wh;
+    i32 f, wx, wy;
+    usize ww, wh;
     Window w;
 } client;
 
 static int xerror ( void );
+static void draw_border ( client *c );
 static void button_press(XEvent *e);
 static void button_release( void );
 static void configure_request(XEvent *e);
@@ -49,10 +50,11 @@ static void win_fs( void );
 static void win_kill( void );
 static void win_prev( void );
 static void win_next( void );
+static void win_modify ( const Arg arg );
 static void win_to_ws(const Arg arg);
 static void ws_go(const Arg arg);
 static void win_focus ( client *c );
-
+static void sowm_exit ( void );
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
 static isize        ws = 1, sw, sh, wx, wy;
 static usize        ww, wh;

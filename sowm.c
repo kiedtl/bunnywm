@@ -2,6 +2,8 @@
 // kiedtl's sowm
 //
 
+// TODO: convert all indent to tabs
+
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include <X11/Xlib-xcb.h>
@@ -70,6 +72,23 @@ sowm_exit( void )
 		exit(EXIT_SUCCESS);
 }
 
+void
+draw_border ( client *c )
+{
+    if (c == NULL) return;
+	
+    // set border width
+	usize values[] = { borderpx };
+	//xcb_configure_window(con, c->w, XCB_CONFIG_WINDOW_BORDER_WIDTH, values);
+
+	if (cur->w == c->w)
+		values[0] = bdrsel_col;
+	else
+		values[0] = bdrnorm_col;
+
+	xcb_change_window_attributes(con, c->w, XCB_CW_BORDER_PIXEL, values);
+}
+	
 void
 win_focus ( client *c )
 {
@@ -167,6 +186,7 @@ win_add ( Window w )
     }
 
     ws_save(ws);
+	draw_border(c);
 }
 
 void
@@ -259,6 +279,72 @@ win_next ( void )
 
     //XRaiseWindow(d, cur->next->w);
     win_focus(cur->next);
+}
+
+void
+win_modify ( const Arg arg )
+{
+		if (!cur || cur->f) return;
+
+		// raise window
+		usize values[] = { XCB_STACK_MODE_ABOVE };
+		xcb_configure_window(con, cur->w, XCB_CONFIG_WINDOW_STACK_MODE, values);
+		xcb_flush(con);
+
+		// move/resize up or down, left or right
+		switch (arg.i)
+		{
+		case RESIZE_LEFT:
+				cur->ww = cur->ww - 10;
+				values[0] = cur->ww;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_WIDTH, values);
+				break;
+		case RESIZE_RIGHT:
+				cur->ww = cur->ww + 10;
+				values[0] = cur->ww;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_WIDTH, values);
+				break;
+		case RESIZE_UP:
+				cur->wh = cur->wh + 10;
+				values[0] = cur->wh;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_HEIGHT, values);
+				break;
+		case RESIZE_DOWN:
+				cur->wh = cur->wh + 10;
+				values[0] = cur->wh;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_HEIGHT, values);
+				break;
+		case MOVE_UP:
+				cur->wy = cur->wy + 10;
+				values[0] = cur->wy;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_Y, values);
+				break;
+		case MOVE_DOWN:
+				cur->wy = cur->wy - 10;
+				values[0] = cur->wy;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_Y, values);
+				break;
+		case MOVE_RIGHT:
+				cur->wx = cur->wx - 10;
+				values[0] = cur->wx;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_X, values);
+				break;
+		case MOVE_LEFT:
+				cur->wx = cur->wx + 10;
+				values[0] = cur->wx;
+				xcb_configure_window(con, cur->w,
+								XCB_CONFIG_WINDOW_X, values);
+				break;
+		}
+
+		xcb_flush(con);
 }
 
 void

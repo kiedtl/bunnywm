@@ -1,13 +1,34 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// ----- definitions -----
+// only mess with this if you know
+// what you're doing!
 #define MOD Mod4Mask
 
+#define RESIZE_LEFT		0x1
+#define RESIZE_DOWN		0x2
+#define RESIZE_UP		0x3
+#define RESIZE_RIGHT	0x4
+#define MOVE_LEFT		0x5
+#define MOVE_DOWN		0x6
+#define MOVE_UP			0x7
+#define MOVE_RIGHT		0x8
+
+// ----- borders -----
+const int borderpx    = 2;
+
+// color format: 0xRRGGBB
+const int bdrnorm_col = 0x9A4F31;
+const int bdrsel_col  = 0xC3D3D2;
+
+// ----- command -----
 const char *lock[]    = { "slock",                       0 };
 const char *menu[]    = { "ndmen",                       0 };
 const char *term[]    = { "xterm", "-title", "terminal", 0 };
 const char *scrot[]   = { "scr",                         0 };
 
+// ------ keybindings ------
 static struct key keys[] = {
     {MOD|ShiftMask, XK_e,   sowm_exit,  {0}},
     {MOD|ShiftMask, XK_q,   win_kill,   {0}},
@@ -16,6 +37,16 @@ static struct key keys[] = {
     {MOD,           XK_j,   win_next,   {0}},
     {MOD,           XK_k,   win_prev,   {0}},
     //{Mod1Mask,     XK_Tab, win_next,   {0}},
+	
+	{Mod1Mask,      XK_h,   win_modify, {.i = RESIZE_LEFT}},
+	{Mod1Mask,      XK_j,   win_modify, {.i = RESIZE_DOWN}},
+	{Mod1Mask,      XK_k,   win_modify, {.i = RESIZE_UP}},
+	{Mod1Mask,      XK_l,   win_modify, {.i = RESIZE_RIGHT}},
+
+	{MOD|ShiftMask, XK_h,   win_modify, {.i = MOVE_LEFT}},
+	{MOD|ShiftMask, XK_j,   win_modify, {.i = MOVE_DOWN}},
+	{MOD|ShiftMask, XK_k,   win_modify, {.i = MOVE_UP}},
+	{MOD|ShiftMask, XK_l,   win_modify, {.i = MOVE_RIGHT}},
 
 	{MOD|ShiftMask, XK_S,      run, {.com = lock}},
     {MOD,           XK_p,      run, {.com = menu}},
