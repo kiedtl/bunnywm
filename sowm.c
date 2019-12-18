@@ -6,7 +6,6 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
-#include <xcb/xcb_ewmh.h>
 #include <X11/Xlib-xcb.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
@@ -18,9 +17,8 @@
 #include "types.h"
 #include "sowm.h"
 #include "config.h"
-#include "ewmh.h"
 
-int 
+static int 
 xerror(void)
 {
 		return 0;
@@ -42,8 +40,6 @@ win_focus(client *c)
 	xcb_flush(con);
 
     //XSetInputFocus(d, cur->w, RevertToParent, CurrentTime);
-	
-	junk_set_activew(cur->w, con, screen);
 }
 
 void
@@ -180,8 +176,6 @@ win_fs(void)
 void
 win_to_ws ( const Arg arg )
 {
-    if (MAX_WS < arg.i) return;
-
     int tmp = ws;
 
     if (arg.i == tmp) return;
@@ -300,8 +294,6 @@ win_modify ( const Arg arg )
 void
 ws_go ( const Arg arg )
 {
-    if (MAX_WS < arg.i) return;
-
     int tmp = ws;
 
     if (arg.i == ws) return;
@@ -319,8 +311,6 @@ ws_go ( const Arg arg )
 
     if (list) win_focus(list);
 	else cur = 0;
-
-	junk_set_currentws(arg.i);
 }
 
 void
@@ -396,34 +386,11 @@ main ( void )
         XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
                  root, True, GrabModeAsync, GrabModeAsync);
 
-    for (usize i = 1; i < 4; i += 2) {
+    for (usize i = 1; i < 4; i += 2)
         XGrabButton(d, i, MOD, root, True,
             ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
             GrabModeAsync, GrabModeAsync, 0, 0);
-	}
 
-	// junk init
-    junk_init(con);
-	xcb_atom_t net_atoms[] = {
-			junk->_NET_ACTIVE_WINDOW,
-			junk->_NET_WM_NAME,
-			junk->_NET_CURRENT_DESKTOP,
-			junk->_NET_NUMBER_OF_DESKTOPS
-	};
-
-    // xcb_ewmh_set_supported(ewmh cookie, screen no, length of net_atoms, net_atoms);
-	xcb_ewmh_set_supported(junk, 0, 3, net_atoms);
-
-	// set wmname
-	junk_set_wmname("cottontail", screen);
-
-	// set max workspaces
-	junk_set_maxws(MAX_WS);
-
-	// set current workspace
-	junk_set_currentws(1);
-
-	// process events
     while (1 && !XNextEvent(d, &ev))
         if (events[ev.type]) events[ev.type](&ev);
 }

@@ -8,9 +8,9 @@ WARNINGS	 = -Wall -Wextra -pedantic -Wmissing-prototypes \
 CC 			?= gcc
 INC			 = -Isub/ccommon/ -I/usr/include/X11/ -I/usr/include/ 
 CFLAGS		 = -O3 -std=c99 $(WARNINGS) $(INC)
-LDFLAGS	 	 = -lX11 -lxcb -lX11-xcb -lxcb-ewmh
+LDFLAGS	 	 = -lX11 -lxcb -lX11-xcb
 
-SRC			 = $(NAME).c ewmh.c
+SRC			 = $(NAME).c
 OBJ			 = $(SRC:.c=.o)
 
 all: config.h $(NAME)
@@ -19,7 +19,7 @@ config.h:
 	cp config.def.h config.h
 
 $(NAME): $(OBJ)
-	$(CC) $(LDFLAGS) -O3 -o $@ $(OBJ)
+	$(CC) $(LDFLAGS) -O3 -o $@ $<
 
 install: all
 	install -Dm 755 sowm $(DESTDIR)$(BINDIR)/sowm
