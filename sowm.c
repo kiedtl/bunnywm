@@ -266,6 +266,8 @@ win_next ( void )
 void
 win_modify ( const Arg arg )
 {
+		usize step = 20;
+
 		if (!cur || cur->f) return;
 
 		// raise window
@@ -273,53 +275,56 @@ win_modify ( const Arg arg )
 		xcb_configure_window(con, cur->w, XCB_CONFIG_WINDOW_STACK_MODE, values);
 		xcb_flush(con);
 
+		// update wh ww wy wx
+        win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+
 		// move/resize up or down, left or right
 		switch (arg.i)
 		{
 		case RESIZE_LEFT:
-				cur->ww = cur->ww - 10;
+				cur->ww = cur->ww - step;
 				values[0] = cur->ww;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_WIDTH, values);
 				break;
 		case RESIZE_RIGHT:
-				cur->ww = cur->ww + 10;
+				cur->ww = cur->ww + step;
 				values[0] = cur->ww;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_WIDTH, values);
 				break;
 		case RESIZE_UP:
-				cur->wh = cur->wh + 10;
+				cur->wh = cur->wh - step;
 				values[0] = cur->wh;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_HEIGHT, values);
 				break;
 		case RESIZE_DOWN:
-				cur->wh = cur->wh + 10;
+				cur->wh = cur->wh + step;
 				values[0] = cur->wh;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_HEIGHT, values);
 				break;
 		case MOVE_UP:
-				cur->wy = cur->wy + 10;
+				cur->wy = cur->wy - step;
 				values[0] = cur->wy;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_Y, values);
 				break;
 		case MOVE_DOWN:
-				cur->wy = cur->wy - 10;
+				cur->wy = cur->wy + step;
 				values[0] = cur->wy;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_Y, values);
 				break;
 		case MOVE_RIGHT:
-				cur->wx = cur->wx - 10;
+				cur->wx = cur->wx + step;
 				values[0] = cur->wx;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_X, values);
 				break;
 		case MOVE_LEFT:
-				cur->wx = cur->wx + 10;
+				cur->wx = cur->wx - step;
 				values[0] = cur->wx;
 				xcb_configure_window(con, cur->w,
 								XCB_CONFIG_WINDOW_X, values);
