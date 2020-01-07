@@ -174,7 +174,7 @@ win_fs(void)
 }
 
 void
-win_to_ws ( const Arg arg )
+win_to_ws(const Arg arg)
 {
 	if (MAX_WS < arg.i)
 			return;
@@ -196,7 +196,7 @@ win_to_ws ( const Arg arg )
 }
 
 void
-win_prev ( void )
+win_prev(void)
 {
 	if (!cur) return;
 
@@ -210,7 +210,7 @@ win_prev ( void )
 }
 
 void
-win_next ( void )
+win_next(void)
 {
 	if (!cur) return;
 
@@ -224,7 +224,7 @@ win_next ( void )
 }
 
 void
-win_modify ( const Arg arg )
+win_modify(const Arg arg)
 {
 		usize step = 20;
 
@@ -236,7 +236,7 @@ win_modify ( const Arg arg )
 		xcb_flush(con);
 
 		// update wh ww wy wx
-	    win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+		win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
 
 		// move/resize up or down, left or right
 		switch (arg.i)
@@ -320,7 +320,7 @@ ws_go ( const Arg arg )
 }
 
 void
-configure_request ( XEvent *e )
+configure_request(XEvent *e)
 {
 	XConfigureRequestEvent *ev = &e->xconfigurerequest;
 
@@ -335,7 +335,7 @@ configure_request ( XEvent *e )
 }
 
 void
-map_request ( XEvent *e )
+map_request(XEvent *e)
 {
 	Window w = e->xmaprequest.window;
 
@@ -351,7 +351,7 @@ map_request ( XEvent *e )
 }
 
 void
-run ( const Arg arg )
+run (const Arg arg)
 {
 	if (fork()) return;
 	if (d) close(ConnectionNumber(d));
@@ -360,8 +360,13 @@ run ( const Arg arg )
 	execvp((char*) arg.com[0], (char**) arg.com);
 }
 
+void
+arrange(void)
+{
+}
+
 int
-main ( void )
+main(void)
 {
 	XEvent ev;
 

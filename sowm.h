@@ -56,6 +56,7 @@ static void ws_go(const Arg arg);
 static void configure_request(XEvent *e);
 static void map_request(XEvent *e);
 static void run(const Arg arg);
+static void arrange(void);
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
 static isize        ws = 1, sw, sh, wx, wy;
