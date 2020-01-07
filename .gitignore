@@ -1,4 +1,4 @@
 sowm
 *.o
-
+obj
 **/*.*.swp
