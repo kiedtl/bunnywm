@@ -2,16 +2,16 @@ NAME		 = sowm
 PREFIX		?= /usr/local
 BINDIR		?= $(PREFIX)/bin
 
-WARNINGS	 = -Wall -Wextra -pedantic -Wmissing-prototypes \
-			   -Wold-style-definition -Werror -Wno-incompatible-pointer-types
+WARNINGS	= -Wall -Wextra -pedantic -Wmissing-prototypes \
+		   -Wold-style-definition -Werror -Wno-incompatible-pointer-types
 
-CC 			?= gcc
-INC			 = -Isub/ccommon/ -I/usr/include/X11/ -I/usr/include/ 
-CFLAGS		 = -O3 -std=c99 $(WARNINGS) $(INC)
-LDFLAGS	 	 = -lX11 -lxcb -lX11-xcb
+CC 		?= gcc
+INC		= -Isub/ccommon/ -I/usr/include/X11/ -I/usr/include/ 
+CFLAGS		= -O3 -std=c99 $(WARNINGS) $(INC)
+LDFLAGS	 	= -lX11 -lxcb -lX11-xcb
 
-SRC			 = $(NAME).c
-OBJ			 = $(SRC:.c=.o)
+SRC		 = $(NAME).c
+OBJ		 = $(SRC:.c=.o)
 
 all: config.h $(NAME)
 
