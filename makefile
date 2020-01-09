@@ -1,4 +1,4 @@
-NAME		 = bunnywm
+NAME		 = bunny
 PREFIX		?= /usr/local
 BINDIR		?= $(PREFIX)/bin
 

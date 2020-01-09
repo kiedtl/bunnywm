@@ -33,7 +33,7 @@ static struct key keys[] = {
 	{MOD|ShiftMask, XK_k,      win_modify, {.i = MOVE_UP}},
 	{MOD|ShiftMask, XK_l,      win_modify, {.i = MOVE_RIGHT}},
 
-	{MOD|ShiftMask, XK_S,      run,        {.com = lock}},
+	{MOD|ShiftMask, XK_s,      run,        {.com = lock}},
 	{MOD,           XK_p,      run,        {.com = menu}},
 	{MOD|ShiftMask, XK_p,      run,        {.com = scrot}},
 	{MOD,           XK_Return, run,        {.com = term}},
