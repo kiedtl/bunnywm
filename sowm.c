@@ -335,6 +335,7 @@ win_modify(const Arg arg)
 		break;
 	}
 
+	win_round_corners(cur->w, CORNER_RADIUS);
 	xcb_flush(con);
 }
 
