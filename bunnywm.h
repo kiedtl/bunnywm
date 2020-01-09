@@ -36,7 +36,7 @@ typedef struct client {
 } client;
 
 static int xerror(void);
-static void sowm_exit(void);
+static void wm_exit(void);
 static void win_focus(client *c);
 static void notify_destroy(XEvent *e);
 static void notify_enter(XEvent *e);

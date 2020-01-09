@@ -24,7 +24,7 @@
 #include <unistd.h>
 
 #include "types.h"
-#include "sowm.h"
+#include "bunny.h"
 #include "config.h"
 
 static int 
@@ -34,7 +34,7 @@ xerror(void)
 }
 
 void
-sowm_exit(void)
+wm_exit(void)
 {
 	exit(EXIT_SUCCESS);
 }
@@ -119,7 +119,7 @@ win_add(Window w)
 	client *c;
 
 	if (!(c = (client *) calloc(1, sizeof(client)))) {
-		EPRINT("sowm: error: unable to allocate memory for new window: ");
+		EPRINT("bunnywm: error: unable to allocate memory for new window: ");
 		perror("calloc()");
 		exit(1);
 	}
@@ -415,7 +415,7 @@ main(void)
 	XEvent ev;
 
 	if (!(d = XOpenDisplay(0))) {
-		EPRINT("sowm: error: unable to open X display.\n");
+		EPRINT("bunnywm: error: unable to open X display.\n");
 		exit(1);
 	}
 

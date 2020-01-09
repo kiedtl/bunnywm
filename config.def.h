@@ -16,7 +16,7 @@ const char *donil[]   = { "echo",                        0 };  // do-nothing com
 static struct key keys[] = {
 
 	// modifiers    keys       function    args
-	{MOD|ShiftMask, XK_e,      sowm_exit,  {0}},
+	{MOD|ShiftMask, XK_e,      wm_exit,  {0}},
 	{MOD|ShiftMask, XK_q,      win_kill,   {0}},
 	{MOD,           XK_c,      win_center, {0}},
 	{MOD,           XK_f,      win_fs,     {0}},

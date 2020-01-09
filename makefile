@@ -1,4 +1,4 @@
-NAME		 = sowm
+NAME		 = bunnywm
 PREFIX		?= /usr/local
 BINDIR		?= $(PREFIX)/bin
 
@@ -22,7 +22,7 @@ $(NAME): $(OBJ)
 	$(CC) $(LDFLAGS) -O3 -o $@ $<
 
 install: all
-	install -Dm 755 sowm $(DESTDIR)$(BINDIR)/sowm
+	install -Dm 755 $(NAME) $(DESTDIR)$(BINDIR)/$(NAME)
 
 clean:
 	rm -f $(NAME) $(OBJ)
