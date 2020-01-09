@@ -1,5 +1,14 @@
 //
-// kiedtl's sowm
+// bunnywm
+// kiedt's fork of sowm
+//
+// CHANGELOG
+// 	- port to XCB (WIP)
+// 	- error message on failed calloc()
+// 	- long live kernel style indentation! :P
+// 	- apply rounded corner patch
+// 	- 2bwm-esque window movement
+// 	- misc keybinding changes
 //
 
 // TODO: convert all indent to tabs
@@ -69,10 +78,10 @@ notify_motion(XEvent *e)
 	int yd = e->xbutton.y_root - mouse.y_root;
 
 	XMoveResizeWindow(d, mouse.subwindow,
-	    wx + (mouse.button == 1 ? xd : 0),
-	    wy + (mouse.button == 1 ? yd : 0),
-	    ww + (mouse.button == 3 ? xd : 0),
-	    wh + (mouse.button == 3 ? yd : 0));
+		wx + (mouse.button == 1 ? xd : 0),
+		wy + (mouse.button == 1 ? yd : 0),
+		ww + (mouse.button == 3 ? xd : 0),
+		wh + (mouse.button == 3 ? yd : 0));
 
 	if (mouse.button == 3)
 		win_round_corners(mouse.subwindow, CORNER_RADIUS);
@@ -84,8 +93,8 @@ key_press(XEvent *e)
 	KeySym keysym = XkbKeycodeToKeysym(d, e->xkey.keycode, 0, 0);
 
 	for (usize i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
-	    if (keys[i].mod == e->xkey.state && keys[i].keysym == keysym)
-	        keys[i].function(keys[i].arg);
+		if (keys[i].mod == e->xkey.state && keys[i].keysym == keysym)
+			keys[i].function(keys[i].arg);
 }
 
 void
@@ -112,19 +121,19 @@ win_add(Window w)
 	if (!(c = (client *) calloc(1, sizeof(client)))) {
 		EPRINT("sowm: error: unable to allocate memory for new window: ");
 		perror("calloc()");
-	    exit(1);
+		exit(1);
 	}
 
 	c->w = w;
 
 	if (list) {
-	    list->prev->next = c;
-	    c->prev          = list->prev;
-	    list->prev       = c;
-	    c->next          = list;
+		list->prev->next = c;
+		c->prev          = list->prev;
+		list->prev       = c;
+		c->next          = list;
 	} else {
-	    list = c;
-	    list->prev = list->next = list;
+		list = c;
+		list->prev = list->next = list;
 	}
 
 	ws_save(ws);
@@ -159,7 +168,6 @@ win_center(void)
 	if (!cur) return;
 
 	win_size(cur->w, &(int){0}, &(int){0}, &ww, &wh);
-
 	XMoveWindow(d, cur->w, (sw - ww) / 2, (sh - wh) / 2);
 }
 
@@ -169,10 +177,10 @@ win_fs(void)
 	if (!cur) return;
 
 	if ((cur->f = cur->f ? 0 : 1)) {
-	    win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
-	    XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
+		win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+		XMoveResizeWindow(d, cur->w, 0, 0, sw, sh);
 	} else {
-	    XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
+		XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
 	}
 
 	win_round_corners(cur->w, cur->f ? 0 : CORNER_RADIUS);
@@ -215,10 +223,9 @@ void
 win_to_ws(const Arg arg)
 {
 	if (MAX_WS < arg.i)
-			return;
+		return;
 
 	int tmp = ws;
-
 	if (arg.i == tmp) return;
 
 	ws_sel(arg.i);
@@ -264,79 +271,78 @@ win_next(void)
 void
 win_modify(const Arg arg)
 {
-		usize step = 20;
+	usize step = 20;
+	if (!cur || cur->f) return;
 
-		if (!cur || cur->f) return;
+	// raise window
+	usize values[] = { XCB_STACK_MODE_ABOVE };
+	xcb_configure_window(con, cur->w, XCB_CONFIG_WINDOW_STACK_MODE, values);
+	xcb_flush(con);
 
-		// raise window
-		usize values[] = { XCB_STACK_MODE_ABOVE };
-		xcb_configure_window(con, cur->w, XCB_CONFIG_WINDOW_STACK_MODE, values);
-		xcb_flush(con);
+	// update wh ww wy wx
+	win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
 
-		// update wh ww wy wx
-		win_size(cur->w, &cur->wx, &cur->wy, &cur->ww, &cur->wh);
+	// move/resize up or down, left or right
+	switch (arg.i)
+	{
+	case RESIZE_LEFT:
+		cur->ww = cur->ww - step;
+		values[0] = cur->ww;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_WIDTH, values);
+		break;
+	case RESIZE_RIGHT:
+		cur->ww = cur->ww + step;
+		values[0] = cur->ww;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_WIDTH, values);
+		break;
+	case RESIZE_UP:
+		cur->wh = cur->wh - step;
+		values[0] = cur->wh;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_HEIGHT, values);
+		break;
+	case RESIZE_DOWN:
+		cur->wh = cur->wh + step;
+		values[0] = cur->wh;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_HEIGHT, values);
+		break;
+	case MOVE_UP:
+		cur->wy = cur->wy - step;
+		values[0] = cur->wy;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_Y, values);
+		break;
+	case MOVE_DOWN:
+		cur->wy = cur->wy + step;
+		values[0] = cur->wy;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_Y, values);
+		break;
+	case MOVE_RIGHT:
+		cur->wx = cur->wx + step;
+		values[0] = cur->wx;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_X, values);
+		break;
+	case MOVE_LEFT:
+		cur->wx = cur->wx - step;
+		values[0] = cur->wx;
+		xcb_configure_window(con, cur->w,
+			XCB_CONFIG_WINDOW_X, values);
+		break;
+	}
 
-		// move/resize up or down, left or right
-		switch (arg.i)
-		{
-		case RESIZE_LEFT:
-				cur->ww = cur->ww - step;
-				values[0] = cur->ww;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_WIDTH, values);
-				break;
-		case RESIZE_RIGHT:
-				cur->ww = cur->ww + step;
-				values[0] = cur->ww;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_WIDTH, values);
-				break;
-		case RESIZE_UP:
-				cur->wh = cur->wh - step;
-				values[0] = cur->wh;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_HEIGHT, values);
-				break;
-		case RESIZE_DOWN:
-				cur->wh = cur->wh + step;
-				values[0] = cur->wh;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_HEIGHT, values);
-				break;
-		case MOVE_UP:
-				cur->wy = cur->wy - step;
-				values[0] = cur->wy;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_Y, values);
-				break;
-		case MOVE_DOWN:
-				cur->wy = cur->wy + step;
-				values[0] = cur->wy;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_Y, values);
-				break;
-		case MOVE_RIGHT:
-				cur->wx = cur->wx + step;
-				values[0] = cur->wx;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_X, values);
-				break;
-		case MOVE_LEFT:
-				cur->wx = cur->wx - step;
-				values[0] = cur->wx;
-				xcb_configure_window(con, cur->w,
-								XCB_CONFIG_WINDOW_X, values);
-				break;
-		}
-
-		xcb_flush(con);
+	xcb_flush(con);
 }
 
 void
 ws_go ( const Arg arg )
 {
 	if (MAX_WS < arg.i)
-			return; // get the hell outta here
+		return; // get the hell outta here
 
 	int tmp = ws;
 
@@ -363,12 +369,12 @@ configure_request(XEvent *e)
 	XConfigureRequestEvent *ev = &e->xconfigurerequest;
 
 	XConfigureWindow(d, ev->window, ev->value_mask, &(XWindowChanges) {
-	    .x          = ev->x,
-	    .y          = ev->y,
-	    .width      = ev->width,
-	    .height     = ev->height,
-	    .sibling    = ev->above,
-	    .stack_mode = ev->detail
+		.x          = ev->x,
+		.y          = ev->y,
+		.width      = ev->width,
+		.height     = ev->height,
+		.sibling    = ev->above,
+		.stack_mode = ev->detail
 	});
 
 	win_round_corners(ev->window, CORNER_RADIUS);
@@ -408,8 +414,8 @@ main(void)
 	XEvent ev;
 
 	if (!(d = XOpenDisplay(0))) {
-			EPRINT("sowm: error: unable to open X display.\n");
-			exit(1);
+		EPRINT("sowm: error: unable to open X display.\n");
+		exit(1);
 	}
 
 	signal(SIGCHLD, SIG_IGN);
@@ -431,13 +437,13 @@ main(void)
 	XDefineCursor(d, root, XCreateFontCursor(d, 68));
 
 	for (usize i = 0; i < sizeof(keys)/sizeof(*keys); ++i)
-	    XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
-	             root, True, GrabModeAsync, GrabModeAsync);
+		XGrabKey(d, XKeysymToKeycode(d, keys[i].keysym), keys[i].mod,
+			root, True, GrabModeAsync, GrabModeAsync);
 
 	for (usize i = 1; i < 4; i += 2)
-	    XGrabButton(d, i, MOD, root, True,
-	        ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
-	        GrabModeAsync, GrabModeAsync, 0, 0);
+		XGrabButton(d, i, MOD, root, True,
+			ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
+			GrabModeAsync, GrabModeAsync, 0, 0);
 
 	while (1 && !XNextEvent(d, &ev))
 	    if (events[ev.type]) events[ev.type](&ev);
