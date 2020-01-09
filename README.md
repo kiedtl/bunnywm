@@ -17,6 +17,9 @@ from getting things done.
 - partial EWMH support (*WIP*)
 - long live kernel-style indentation! :P
 
+At the same time, bunnywm strives to keep the spirit of sowm:
+- 450 loc (*excluding comments/blanks*)
+- *22k* compiled size (*with optimizations*)
 <br>
 
 ## Default Keybindings
