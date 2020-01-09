@@ -8,11 +8,12 @@
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
+#include <X11/extensions/shape.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 
-#define MAX_WS	32
+#define MAX_WS 32
 
 typedef union {
     const char** com;
@@ -36,7 +37,7 @@ typedef struct client {
 
 static int xerror(void);
 static void sowm_exit(void);
-static void win_focus ( client *c );
+static void win_focus(client *c);
 static void notify_destroy(XEvent *e);
 static void notify_enter(XEvent *e);
 static void notify_motion(XEvent *e);
@@ -49,14 +50,14 @@ static void win_kill(void);
 static void win_center(void);
 static void win_fs(void);
 static void win_to_ws(const Arg arg);
-static void win_prev( void );
-static void win_next( void );
-static void win_modify ( const Arg arg );
+static void win_prev(void);
+static void win_next(void);
+static void win_round_corners(Window w, int rad);
+static void win_modify(const Arg arg );
 static void ws_go(const Arg arg);
 static void configure_request(XEvent *e);
 static void map_request(XEvent *e);
 static void run(const Arg arg);
-static void arrange(void);
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
 static isize        ws = 1, sw, sh, wx, wy;

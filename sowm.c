@@ -73,6 +73,9 @@ notify_motion(XEvent *e)
 	    wy + (mouse.button == 1 ? yd : 0),
 	    ww + (mouse.button == 3 ? xd : 0),
 	    wh + (mouse.button == 3 ? yd : 0));
+
+	if (mouse.button == 3)
+		win_round_corners(mouse.subwindow, CORNER_RADIUS);
 }
 
 void
@@ -171,6 +174,41 @@ win_fs(void)
 	} else {
 	    XMoveResizeWindow(d, cur->w, cur->wx, cur->wy, cur->ww, cur->wh);
 	}
+
+	win_round_corners(cur->w, cur->f ? 0 : CORNER_RADIUS);
+}
+
+void
+win_round_corners(Window w, int rad)
+{
+	unsigned int ww, wh, dia = 2 * rad;
+	win_size(w, &(int){1}, &(int){1}, &ww, &wh);
+
+	if (ww < dia || wh < dia) return;
+
+	Pixmap mask = XCreatePixmap(d, w, ww, wh, 1);
+	if (!mask) return;
+
+	XGCValues xgcv;
+	GC shape_gc = XCreateGC(d, mask, 0, &xgcv);
+
+	if (!shape_gc) {
+		XFreePixmap(d, mask);
+		return;
+	}
+
+	XSetForeground(d, shape_gc, 0);
+	XFillRectangle(d, mask, shape_gc, 0, 0, ww, wh);
+	XSetForeground(d, shape_gc, 1);
+	XFillArc(d, mask, shape_gc, 0, 0, dia, dia, 0, 23040);
+	XFillArc(d, mask, shape_gc, ww-dia-1, 0, dia, dia, 0, 23040);
+	XFillArc(d, mask, shape_gc, 0, wh-dia-1, dia, dia, 0, 23040);
+	XFillArc(d, mask, shape_gc, ww-dia-1, wh-dia-1, dia, dia, 0, 23040);
+	XFillRectangle(d, mask, shape_gc, rad, 0, ww-dia, wh);
+	XFillRectangle(d, mask, shape_gc, 0, rad, ww, wh-dia);
+	XShapeCombineMask(d, w, ShapeBounding, 0, 0, mask, ShapeSet);
+	XFreePixmap(d, mask);
+	XFreeGC(d, shape_gc);
 }
 
 void
@@ -332,6 +370,8 @@ configure_request(XEvent *e)
 	    .sibling    = ev->above,
 	    .stack_mode = ev->detail
 	});
+
+	win_round_corners(ev->window, CORNER_RADIUS);
 }
 
 void
@@ -348,6 +388,8 @@ map_request(XEvent *e)
 
 	xcb_map_window(con, w); //XMapWindow(d, w);
 	win_focus(list->prev);
+
+	win_round_corners(w, CORNER_RADIUS);
 }
 
 void
@@ -358,11 +400,6 @@ run (const Arg arg)
 
 	setsid();
 	execvp((char*) arg.com[0], (char**) arg.com);
-}
-
-void
-arrange(void)
-{
 }
 
 int

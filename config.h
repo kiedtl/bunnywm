@@ -4,8 +4,6 @@
 // ----- definitions -----
 // only mess with this if you know
 // what you're doing!
-#define MOD Mod4Mask
-
 #define RESIZE_LEFT		0x1
 #define RESIZE_DOWN		0x2
 #define RESIZE_UP		0x3
@@ -14,6 +12,10 @@
 #define MOVE_DOWN		0x6
 #define MOVE_UP			0x7
 #define MOVE_RIGHT		0x8
+
+// ----- misc definitions -----
+#define MOD           Mod4Mask
+#define CORNER_RADIUS 20
 
 // ----- command -----
 const char *lock[]    = { "slock",                       0 };

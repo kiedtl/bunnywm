@@ -8,10 +8,10 @@ WARNINGS	= -Wall -Wextra -pedantic -Wmissing-prototypes \
 CC 		?= gcc
 INC		= -Isub/ccommon/ -I/usr/include/X11/ -I/usr/include/ 
 CFLAGS		= -O3 -std=c99 $(WARNINGS) $(INC)
-LDFLAGS	 	= -lX11 -lxcb -lX11-xcb
+LDFLAGS	 	= -lX11 -lxcb -lX11-xcb -lXext
 
-SRC		 = $(NAME).c
-OBJ		 = $(SRC:.c=.o)
+SRC		= $(NAME).c
+OBJ		= $(SRC:.c=.o)
 
 all: config.h $(NAME)
 
