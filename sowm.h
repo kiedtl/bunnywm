@@ -83,6 +83,15 @@ static void (*events[LASTEvent])(XEvent *e) = {
     [MotionNotify]     = notify_motion
 };
 
+#define RESIZE_LEFT    1
+#define RESIZE_DOWN    2
+#define RESIZE_UP      3
+#define RESIZE_RIGHT   4
+#define MOVE_LEFT      5
+#define MOVE_DOWN      6
+#define MOVE_UP        7
+#define MOVE_RIGHT     8
+
 #define EPRINT(...) fprintf(stderr, __VA_ARGS__);
 #define win         (client *t=0, *c=list; c && t!=list->prev; t=c, c=c->next)
 #define ws_save(W)  ws_list[W] = list
