@@ -42,7 +42,7 @@ static void notify_enter(XEvent *e);
 static void notify_motion(XEvent *e);
 static void key_press(XEvent *e);
 static void button_press(XEvent *e);
-static void button_release(void);
+static void button_release(XEvent *e);
 static void win_add(Window w);
 static void win_del(Window w);
 static void win_kill(void);
@@ -56,7 +56,7 @@ static void ws_go(const Arg arg);
 static void configure_request(XEvent *e);
 static void map_request(XEvent *e);
 static void run(const Arg arg);
-static void arrange(void);
+static void draw_outline(int x1, int y1, int x2, int y2);
 
 static client       *list = {0}, *ws_list[10] = {0}, *cur;
 static isize        ws = 1, sw, sh, wx, wy;
@@ -82,7 +82,11 @@ static void (*events[LASTEvent])(XEvent *e) = {
     [MotionNotify]     = notify_motion
 };
 
+Window WaitingWindow;
+
 #define EPRINT(...) fprintf(stderr, __VA_ARGS__);
+#define ABS(n)      (((n) < 0) ? -(n) : (n))
+
 #define win         (client *t=0, *c=list; c && t!=list->prev; t=c, c=c->next)
 #define ws_save(W)  ws_list[W] = list
 #define ws_sel(W)   list = ws_list[ws = W]

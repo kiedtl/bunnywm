@@ -61,7 +61,10 @@ notify_enter(XEvent *e)
 void
 notify_motion(XEvent *e)
 {
-	if (!mouse.subwindow || cur->f) return;
+	if (!mouse.subwindow || cur->f) {
+		draw_outline(mouse.x_root, mouse.y_root, e->xbutton.x_root, e->xbutton.y_root);
+		return;
+	}
 
 	while(XCheckTypedEvent(d, MotionNotify, e));
 
@@ -88,17 +91,45 @@ key_press(XEvent *e)
 void
 button_press(XEvent *e)
 {
-	if (!e->xbutton.subwindow) return;
+	mouse = e->xbutton;
 
+	if (!e->xbutton.subwindow) return;
 	win_size(e->xbutton.subwindow, &wx, &wy, &ww, &wh);
 	XRaiseWindow(d, e->xbutton.subwindow);
-	mouse = e->xbutton;
 }
 
 void
-button_release(void)
+button_release(XEvent *e)
 {
-	mouse.subwindow = 0;
+    XClearWindow(d, RootWindow(d, DefaultScreen(d)));
+
+    if (WaitingWindow) {
+        XSelectInput(d, WaitingWindow, StructureNotifyMask|EnterWindowMask);
+        win_size(WaitingWindow, &wx, &wy, &ww, &wh);
+        win_add(WaitingWindow);
+        cur = list->prev;
+
+        XMoveResizeWindow(d, cur->w,
+            e->xbutton.x_root > mouse.x_root ? mouse.x_root : e->xbutton.x_root,
+            e->xbutton.y_root > mouse.y_root ? mouse.y_root : e->xbutton.y_root,
+            ABS(mouse.x_root - e->xbutton.x_root),
+            ABS(mouse.y_root - e->xbutton.y_root));
+
+        XMapWindow(d, WaitingWindow);
+        win_focus(list->prev);
+
+        WaitingWindow = 0;
+
+    } else if (!mouse.subwindow && cur) {
+
+        XMoveResizeWindow(d, cur->w,
+            e->xbutton.x_root > mouse.x_root ? mouse.x_root : e->xbutton.x_root,
+            e->xbutton.y_root > mouse.y_root ? mouse.y_root : e->xbutton.y_root,
+            ABS(mouse.x_root - e->xbutton.x_root),
+            ABS(mouse.y_root - e->xbutton.y_root));
+
+        mouse.subwindow = 0;
+    }
 }
 
 void
@@ -337,17 +368,7 @@ configure_request(XEvent *e)
 void
 map_request(XEvent *e)
 {
-	Window w = e->xmaprequest.window;
-
-	XSelectInput(d, w, StructureNotifyMask|EnterWindowMask);
-	win_size(w, &wx, &wy, &ww, &wh);
-	win_add(w);
-	cur = list->prev;
-
-	if ((wx + wy) == 0) win_center();
-
-	xcb_map_window(con, w); //XMapWindow(d, w);
-	win_focus(list->prev);
+	WaitingWindow = e->xmaprequest.window;
 }
 
 void
@@ -361,8 +382,20 @@ run (const Arg arg)
 }
 
 void
-arrange(void)
+draw_outline(int x1, int y1, int x2, int y2)
 {
+	XClearWindow(d, RootWindow(d, DefaultScreen(d)));
+
+	GC gc = XCreateGC(d, RootWindow(d, DefaultScreen(d)), 0, NULL);
+	if (!gc) return;
+
+	XSetForeground(d, gc, WhitePixel(d, DefaultScreen(d)));
+	XDrawLine(d, RootWindow(d, DefaultScreen(d)), gc, x1, y1, x1, y2);
+	XDrawLine(d, RootWindow(d, DefaultScreen(d)), gc, x1, y1, x2, y1);
+	XDrawLine(d, RootWindow(d, DefaultScreen(d)), gc, x1, y2, x2, y2);
+	XDrawLine(d, RootWindow(d, DefaultScreen(d)), gc, x2, y1, x2, y2);
+	XFreeGC(d, gc);
+	XFlush(d);
 }
 
 int
