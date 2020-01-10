@@ -37,6 +37,7 @@ typedef struct client {
 
 static int xerror(void);
 static void wm_exit(void);
+static void ewmh_init(void);
 static void win_focus(client *c);
 static void notify_destroy(XEvent *e);
 static void notify_enter(XEvent *e);
@@ -67,6 +68,7 @@ static Display      *d;
 static XButtonEvent mouse;
 
 // new xcb stuff (WIP)
+xcb_ewmh_connection_t         *ewmh;
 static xcb_connection_t       *con;
 static const xcb_setup_t      *setup;
 static xcb_screen_iterator_t  it;

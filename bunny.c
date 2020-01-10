@@ -16,6 +16,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include <X11/Xlib-xcb.h>
+#include <xcb/xcb_ewmh.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
@@ -37,6 +38,24 @@ void
 wm_exit(void)
 {
 	exit(EXIT_SUCCESS);
+}
+
+/* ----- various ewmh garbage ----- */
+void
+ewmh_init(void)
+{
+	// thanks 2bwm :P
+	if (!(ewmh = calloc(1, sizeof(xcb_ewmh_connection_t)))) {
+		EPRINT("bunnywm: error: failed to calloc() for EWMH:");
+		perror("calloc()");
+		return;
+	}
+
+	xcb_intern_atom_cookie_t *cookie = xcb_ewmh_init_atoms(con, ewmh);
+	if (!xcb_ewmh_init_atoms_replies(ewmh, cookie, (void*) 0)) {
+		EPRINT("bunnywm: error: failed to initialize EWMH.\n");
+		exit(1);
+	}
 }
 
 void
@@ -445,6 +464,19 @@ main(void)
 		XGrabButton(d, i, MOD, root, True,
 			ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
 			GrabModeAsync, GrabModeAsync, 0, 0);
+
+	// setup EWMH garbage
+	ewmh_init();
+	xcb_ewmh_set_wm_pid(ewmh, root, getpid());
+	xcb_ewmh_set_wm_name(ewmh, root, 7, "bunnywm");
+	xcb_atom_t net_atoms[] = {
+		ewmh->_NET_WM_NAME
+	};
+
+	xcb_ewmh_set_supported(ewmh,
+			0, 	// screen number
+			1, 	// length of net_atoms
+			net_atoms);
 
 	while (1 && !XNextEvent(d, &ev))
 	    if (events[ev.type]) events[ev.type](&ev);
