@@ -442,10 +442,10 @@ main(void)
 	XSetErrorHandler(xerror);
 
 	// setup xcb stuff (WIP)
-	con = XGetXCBConnection(d);
-	setup = xcb_get_setup(con);
-	it = xcb_setup_roots_iterator(setup);
-	screen = it.data;
+	con         = XGetXCBConnection(d);
+	setup       = xcb_get_setup(con);
+	it          = xcb_setup_roots_iterator(setup);
+	screen      = it.data;
 
 	//int s       = DefaultScreen(d);
 	Window root = screen->root; //RootWindow(d, s);
