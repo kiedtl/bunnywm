@@ -1,10 +1,11 @@
 ## TODO
 
 - die if window manager is already running.
-- partial support for EWMH:
-	- \_NET\_WM\_NAME
-	- \_NET\_CURRENT\_DESKTOP
+- WIP: partial support for EWMH:
+	- DONE: \_NET\_WM\_NAME
+	- DONE: \_NET\_CURRENT\_DESKTOP
 	- \_NET\_ACTIVE\_WINDOW
-	- \_NET\_NUMBER\_OF\_DESKTOPS
+	- DONE: \_NET\_NUMBER\_OF\_DESKTOPS
+	- DONE: \_NET\_WM\_PID
 - restart on SIGHUP.
-- complete port to XCB.
+- WIP: complete port to XCB.
