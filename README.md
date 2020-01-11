@@ -15,7 +15,6 @@ from getting things done.
 - rounded corners by default
 	- easily disabled by editing `CORNER_RADIUS`.
 - XCB instead of libX11 (*WIP**)
-- partial EWMH support (*WIP*)
 - long live kernel-style indentation! :P
 
 At the same time, bunnywm strives to keep the spirit of sowm:
