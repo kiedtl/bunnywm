@@ -381,6 +381,8 @@ ws_go ( const Arg arg )
 
 	if (list) win_focus(list);
 	else cur = 0;
+
+	xcb_ewmh_set_current_desktop(ewmh, 0, ws);
 }
 
 void
@@ -470,13 +472,17 @@ main(void)
 	xcb_ewmh_set_wm_pid(ewmh, root, getpid());
 	xcb_ewmh_set_wm_name(ewmh, root, 7, "bunnywm");
 	xcb_atom_t net_atoms[] = {
-		ewmh->_NET_WM_NAME
+		ewmh->_NET_WM_PID,
+		ewmh->_NET_WM_NAME,
+		ewmh->_NET_CURRENT_DESKTOP,
+		ewmh->_NET_NUMBER_OF_DESKTOPS
 	};
 
-	xcb_ewmh_set_supported(ewmh,
-			0, 	// screen number
-			1, 	// length of net_atoms
+	xcb_ewmh_set_supported(ewmh, 0,
+			4, 	// length of net_atoms
 			net_atoms);
+	xcb_ewmh_set_current_desktop(ewmh, 0, ws);
+	xcb_ewmh_set_number_of_desktops(ewmh, 0, WS_COUNT);
 
 	while (1 && !XNextEvent(d, &ev))
 	    if (events[ev.type]) events[ev.type](&ev);

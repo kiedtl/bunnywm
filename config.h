@@ -2,8 +2,9 @@
 #define CONFIG_H
 
 // ----- misc definitions -----
-#define MOD           Mod4Mask
-#define CORNER_RADIUS 20
+#define MOD           Mod4Mask      // modifier key (Mod1Mask for Alt)
+#define CORNER_RADIUS 20            // corner rounding
+#define WS_COUNT      6             // workspace count
 
 // ----- command -----
 const char *lock[]    = { "slock",                       0 };
