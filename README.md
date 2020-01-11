@@ -1,9 +1,9 @@
 # bunnywm
 
-An itsy bitsy floating window manager forked from sowm.
+An small, XCB-based window manager forked from sowm with extra features.
 
 ## Why?
-Minimalism is good -- but it should be so extreme that is prevents you
+Minimalism is good -- but it should not be so extreme that is prevents you
 from getting things done.
 
 - partial EWMH support
