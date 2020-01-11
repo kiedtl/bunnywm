@@ -6,6 +6,11 @@ An itsy bitsy floating window manager forked from sowm.
 Minimalism is good -- but it should be so extreme that is prevents you
 from getting things done.
 
+- partial EWMH support
+	- \_NET\_WM\_PID
+	- \_NET\_WM\_NAME
+	- \_NET\_NUMBER\_OF\_DESKTOPS
+	- \_NET\_CURRENT\_DESKTOP
 - (primitive) 2bwm-esque window movement
 - rounded corners by default
 	- easily disabled by editing `CORNER_RADIUS`.
