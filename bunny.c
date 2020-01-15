@@ -11,8 +11,6 @@
 // 	- misc keybinding changes
 //
 
-// TODO: convert all indent to tabs
-
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include <X11/Xlib-xcb.h>
