@@ -3,15 +3,8 @@
 
 // ----- misc definitions -----
 #define MOD           Mod4Mask      // modifier key (Mod1Mask for Alt)
-#define CORNER_RADIUS 20            // corner rounding
+#define CORNER_RADIUS 10            // corner rounding
 #define WS_COUNT      6             // workspace count
-
-// ----- command -----
-const char *lock[]    = { "slock",                       0 };
-const char *menu[]    = { "ndmen",                       0 };
-const char *term[]    = { "xterm", "-title", "terminal", 0 };
-const char *scrot[]   = { "scr",                         0 };
-const char *donil[]   = { "echo",                        0 };  // do-nothing command
 
 // ------ keybindings ------
 static struct key keys[] = {
@@ -33,17 +26,6 @@ static struct key keys[] = {
 	{MOD|ShiftMask, XK_j,      win_modify, {.i = MOVE_DOWN}},
 	{MOD|ShiftMask, XK_k,      win_modify, {.i = MOVE_UP}},
 	{MOD|ShiftMask, XK_l,      win_modify, {.i = MOVE_RIGHT}},
-
-	{MOD|ShiftMask, XK_s,      run,        {.com = lock}},
-	{MOD,           XK_p,      run,        {.com = menu}},
-	{MOD|ShiftMask, XK_p,      run,        {.com = scrot}},
-	{MOD,           XK_Return, run,        {.com = term}},
-
-	{0,             XF86XK_AudioLowerVolume,  run, {.com = donil}},
-	{0,             XF86XK_AudioRaiseVolume,  run, {.com = donil}},
-	{0,             XF86XK_AudioMute,         run, {.com = donil}},
-	{0,             XF86XK_MonBrightnessUp,   run, {.com = donil}},
-	{0,             XF86XK_MonBrightnessDown, run, {.com = donil}},
 
 	{MOD,           XK_1,      ws_go,      {.i = 1}},
 	{MOD|ShiftMask, XK_1,      win_to_ws,  {.i = 1}},
