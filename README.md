@@ -3,8 +3,7 @@
 An small, XCB-based window manager forked from sowm with extra features.
 
 ## Why?
-Minimalism is good -- but it should not be so extreme that is prevents you
-from getting things done.
+I love sowm, but I thought some features were missing. :)
 
 - partial EWMH support
 	- \_NET\_WM\_PID
